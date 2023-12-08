@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Upload</title>
+</head>
+<body>
+
+
+    <form id="uploadForm">
+        <label for="fileInput">Choose a file (CSV, Max file size is 100KB):</label>
+        <input type="file" id="fileInput" name="fileInput" accept=".csv">
+        <br>
+        <button type="button" onclick="submitForm()">Submit</button>
+    </form>
+
+    <div id="responseSection" style="display:none;">
+        <a id="downloadLink" style="display:none;">Download ZIP</a>
+    </div>
+
+    <script>
+        function submitForm() {
+            var fileInput = document.getElementById('fileInput');
+            var file = fileInput.files[0];
+
+            if (file) {
+                // Check file type
+                var allowedTypes = ["text/csv"];
+                if (allowedTypes.indexOf(file.type) === -1) {
+                    alert('Only CSV files are allowed.');
+                    return;
+                }
+
+                // Check file size (in bytes)
+                var maxSize = 100 * 1024; // 100KB
+                if (file.size > maxSize) {
+                    alert('File size must be less than 100KB.');
+                    return;
+                }
+
+                var formData = new FormData();
+                formData.append('file', file);
+
+                fetch('/api/csv-to-barcode?access-key={{session_id}}', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(data => {
+                  document.getElementById('download-waiting').style = "display:block"
+                  return data.blob()
+                })
+                .then(data => {
+                    // Handle the response from your API
+                    console.log({data});
+
+                    // Create a Blob from the response data
+                    var blob = new Blob([data], { type: 'application/zip' });
+
+                    // Create a download link
+                    var downloadLink = document.getElementById('downloadLink');
+                    downloadLink.href = URL.createObjectURL(blob);
+                    downloadLink.download = 'content.zip';
+                    // downloadLink.click()
+                })
+                .catch(error => {
+                    // Handle errors
+                    console.error('Error:', error);
+                });
+            } else {
+                alert('Please choose a file before submitting.');
+            }
+        }
+    </script>
+    <h4 id="download-waiting" style="display:none">
+        Your download will start automatically, Enjoy :)
+    </h4>
+    
+</body>
+</html>
