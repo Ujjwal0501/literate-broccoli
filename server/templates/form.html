@@ -42,7 +42,7 @@
                 var formData = new FormData();
                 formData.append('file', file);
 
-                fetch('/api/csv-to-barcode?access-key={{session_id}}', {
+                fetch('/api/csv-to-barcode', {
                     method: 'POST',
                     body: formData
                 })

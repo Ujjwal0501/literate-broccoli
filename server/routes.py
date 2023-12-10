@@ -24,7 +24,7 @@ def page_not_found(e):
 @server.route('/create-barcode', methods=['GET'])
 def form_page():
     handle_visit(session)
-    return render_template('form.html', session_id=session['uuid']), 200     
+    return render_template('form.html'), 200     
 
 
 if __name__ == '__main__':

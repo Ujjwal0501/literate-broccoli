@@ -29,7 +29,12 @@ def handle_output_req(session, data_entries):
 
 def validate_query_src(req_args):
     # TODO move this to auth moduel
-    if not 'access-key' in req_args:
-        return None
+    user = None
+    task_id = None
+    if 'access_key' in req_args:
+        user = UserSession.get_or_none(session_id=req_args['access_key'])
 
-    return UserSession.get_or_none(session_id=req_args['access-key'])
+    if 'task_id' in req_args:
+        task_id = req_args['task_id']
+
+    return user, task_id

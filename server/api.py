@@ -12,9 +12,7 @@ api = Blueprint("api", __name__)
 
 @api.route('/csv-to-barcode', methods=['POST'])
 def upload_file():
-    user = validate_query_src(request.args)
-    if not user or user.quota_left < 1:
-        return 'Unauthorized', 403
+    user, task_id = validate_query_src(request.args)
 
     if 'file' not in request.files:
         return 'No file part in the request', 400
@@ -28,27 +26,26 @@ def upload_file():
     data = [item for sublist in data for item in sublist]
     if len(data) > MAX_REQUEST_SIZE:
         return f'Entry limit exceeded. Maximum entry allowed is {MAX_REQUEST_SIZE}', 400
-    task = Task.create(session = user.session_id, entry_count = len(data), data_entries = ','.join(data))
-    user.update(quota_left=user.quota_left-1).execute()
 
-    return json.dumps({'status': "OK", 'quota': user.quota_left-1}), 200
+    task = Task.create(entry_count = len(data), data_entries = ','.join(data))
+    handle_output_req.delay(task.session, task.data_entries)
+
+    if user:
+        user.update(quota_left=user.quota_left-1).execute()
+
+    return json.dumps({'status': "OK", 'task_id': task.task_id}), 200
 
 
 @api.route('/csv-to-barcode', methods=['GET'])
 def download_barcode():
-    user = validate_query_src(request.args)
-    if not user or user.quota_left < 1:
-        return 'Unauthorized', 403
+    user, task_id = validate_query_src(request.args)
 
-    task = Task.get_or_none(session=user.session_id)
+    task = Task.get_or_none(task_id=task_id)
     if not task:
         return 'No task received', 400
 
-    if task.status == Task.STATUS_IN_QUEUE or task.status == Task.STATUS_PROCESSING:
+    if task.status == Task.STATUS_IN_QUEUE:
         task.update(status = Task.STATUS_PROCESSING).execute()
-        print(task.status)
-        # req_pool.map_async(handle_output_req, (task,))
-        handle_output_req.delay(task.session, task.data_entries)
         return "", 204
 
     if task.status == Task.STATUS_PROCESSING:

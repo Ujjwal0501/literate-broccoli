@@ -7,5 +7,5 @@ from peewee import SqliteDatabase
 # to the database connection that originally opened it. However, the same in-memory
 # database can be opened by two or more database connections as follows:
 # refer: https://www.sqlite.org/inmemorydb.html#sharedmemdb
-db = SqliteDatabase('file::memory:?cache=shared')
-# db = SqliteDatabase('test.db')
+# db = SqliteDatabase('file::memory:?cache=shared')
+db = SqliteDatabase('data.db')
