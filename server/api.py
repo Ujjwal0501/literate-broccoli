@@ -28,7 +28,7 @@ def upload_file():
         return f'Entry limit exceeded. Maximum entry allowed is {MAX_REQUEST_SIZE}', 400
 
     task = Task.create(entry_count = len(data), data_entries = ','.join(data))
-    handle_output_req.delay(task.session, task.data_entries)
+    handle_output_req.delay(task.task_id, task.data_entries)
 
     if user:
         user.update(quota_left=user.quota_left-1).execute()
@@ -44,12 +44,9 @@ def download_barcode():
     if not task:
         return 'No task received', 400
 
-    if task.status == Task.STATUS_IN_QUEUE:
-        task.update(status = Task.STATUS_PROCESSING).execute()
-        return "", 204
-
-    if task.status == Task.STATUS_PROCESSING:
-        return 'Processing', 206
+    if task.status == Task.STATUS_IN_QUEUE or task.status == Task.STATUS_PROCESSING:
+        progress = task.processed * 100 / task.entry_count
+        return json.dumps({'status': 'Processing', 'progress': progress}), 206
 
     if task.status == Task.STATUS_COMPLETED:
         zip_ = io.BytesIO(task.svg_output)

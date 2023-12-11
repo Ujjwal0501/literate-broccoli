@@ -143,7 +143,8 @@
                             downloadLink.download = 'content.zip';
                             downloadLink.click()
                         } else if (this.status == 204 || this.status == 206) {
-                            var progress = JSON.parse(this.responseText);
+                            var resp = await this.response.text();console.log({resp});
+                            var progress = JSON.parse(resp);
                             resultPoller = setInterval(pollResult, 1000);
                             console.log({progress});
                         } else {

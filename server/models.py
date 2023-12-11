@@ -26,6 +26,7 @@ class Task(Model):
     timestamp = DateTimeField(default=datetime.datetime.now)
     status = IntegerField(default=STATUS_IN_QUEUE, index=True)
     entry_count = IntegerField(default=0, index=True)
+    processed = IntegerField(default=0)
     data_entries = TextField()
     svg_output = BlobField(null=True)
 
