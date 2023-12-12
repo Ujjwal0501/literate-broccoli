@@ -22,9 +22,15 @@ def page_not_found(e):
 
 
 @server.route('/create-barcode', methods=['GET'])
-def form_page():
+def barcode_page():
     handle_visit(session)
-    return render_template('form.html'), 200     
+    return render_template('barcode.html'), 200     
+
+
+@server.route('/create-qrcode', methods=['GET'])
+def qrcode_page():
+    handle_visit(session)
+    return render_template('qrcode.html'), 200     
 
 
 if __name__ == '__main__':
