@@ -167,3 +167,4 @@ cython_debug/
 *.zip
 tracker.csv
 list.csv
+*.db
