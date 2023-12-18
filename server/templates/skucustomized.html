@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SKU Generator</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        #container {
+            display: flex;
+            flex-direction: row;
+            align-items: flex-start;
+            width: 100%;
+            justify-content: space-around;
+        }
+
+        #skuForm, #generatedSKUs {
+            width: 45%;
+        }
+
+        #skuForm {
+            margin-right: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        #separator {
+            margin-bottom: 20px;
+        }
+
+        #generatedSKUs {
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>SKU Generator</h1>
+
+    <div id="container">
+        <form id="skuForm">
+            <label for="itemName">Item/Brand Name:</label>
+            <input type="text" id="itemName" placeholder="Enter Item or Brand name" required>
+
+            <label for="attribute1">Attribute 1:</label>
+            <input type="text" id="attribute1" placeholder="Enter Attribute 1" required>
+
+            <label for="attribute2">Attribute 2:</label>
+            <input type="text" id="attribute2" placeholder="Enter Attribute 2" required>
+
+            <label for="attribute3">Attribute 3:</label>
+            <input type="text" id="attribute3" placeholder="Enter Attribute 3" required>
+
+            <label for="separator">Separator:</label>
+            <select id="separator">
+                <option value="/">/</option>
+                <option value=":">:</option>
+                <option value="-">-</option>
+            </select>
+
+            <button type="button" onclick="generateSKU()">Generate</button>
+            <button id="downloadBtn" type="button" onclick="downloadAsCsv()" style="display:none">Download</button>
+        </form>
+
+        <div id="generatedSKUs"></div>
+    </div>
+
+    <script>
+        var generatedSKUs = [];
+        function generateSKU() {
+            generatedSKUs = [];
+            const itemName = document.getElementById('itemName').value.split(',').map(entry => entry.trim().substring(0, 3));
+            const attribute1 = document.getElementById('attribute1').value.split(',').map(entry => entry.trim().substring(0, 3));
+            const attribute2 = document.getElementById('attribute2').value.split(',').map(entry => entry.trim().substring(0, 3));
+            const attribute3 = document.getElementById('attribute3').value.split(',').map(entry => entry.trim().substring(0, 3));
+            const separator = document.getElementById('separator').value;
+
+            for (const item of itemName) {
+                for (const attr1 of attribute1) {
+                    for (const attr2 of attribute2) {
+                        for (const attr3 of attribute3) {
+                            const sku = `${item}${separator}${attr1}${separator}${attr2}${separator}${attr3}`;
+                            generatedSKUs.push(sku);
+                        }
+                    }
+                }
+            }
+
+            const generatedSKUsElement = document.getElementById('generatedSKUs');
+            generatedSKUsElement.innerHTML = generatedSKUs.join('<br>');
+            document.getElementById('downloadBtn').style = 'display:block';
+        }
+      
+        function downloadAsCsv() {
+            const csv_data = generatedSKUs.join('\n');
+
+            var link = document.createElement("a");
+            link.download = 'generated_skus.csv';
+            link.href = `data:text/html,${csv_data}`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            delete link;
+        }
+    </script>
+
+</body>
+</html>
