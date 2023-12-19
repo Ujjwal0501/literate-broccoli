@@ -11,14 +11,14 @@ from hashlib import sha1
 api = Blueprint("api", __name__)
 
 
-@api.route('/csv-to-barcode', methods=['POST'])
-def handle_barcode_reqeust():
+def common_api_handler(request, task_to_queue):
     user, task_id = validate_query_src(request.args)
 
     if 'file' not in request.files:
         return 'No file part in the request', 400
 
     file = request.files['file']
+    pages = request.form['page'] == 'true' if 'page' in request.form else False
     if file.filename == '' or not file:
         return 'No file selected for uploading', 400
 
@@ -30,11 +30,12 @@ def handle_barcode_reqeust():
         return f'Entry limit exceeded. Maximum entry allowed is {MAX_REQUEST_SIZE}', 400
 
     try:
-        task = Task.create(entry_count = len(data), data_entries = ','.join(data))
+        task = Task.create(entry_count = len(data), data_entries = ','.join(data), pages = pages)
     except peewee.IntegrityError as e:
-        task = Task.get_or_none(task_id = sha1(bytes(','.join(data), 'utf-8')).hexdigest())
+        task = Task.get(task_id = sha1(bytes(','.join(data), 'utf-8')).hexdigest())
+        task.update(status = Task.STATUS_IN_QUEUE, pages = pages).execute()
     finally:
-        handle_barcode_proc.delay(task.task_id, task.data_entries)
+        task_to_queue.delay(task.task_id, task.data_entries)
         
 
     if user:
@@ -43,35 +44,15 @@ def handle_barcode_reqeust():
     return json.dumps({'status': "OK", 'task_id': task.task_id}), 200
 
 
+@api.route('/csv-to-barcode', methods=['POST'])
+def handle_barcode_reqeust():
+    return common_api_handler(request, handle_barcode_proc)
+
+
 
 @api.route('/csv-to-qrcode', methods=['POST'])
 def handle_qrcode_reqeust():
-    user, task_id = validate_query_src(request.args)
-
-    if 'file' not in request.files:
-        return 'No file part in the request', 400
-
-    file = request.files['file']
-    if file.filename == '' or not file:
-        return 'No file selected for uploading', 400
-
-    stream = io.StringIO(file.stream.read().decode("UTF8"), newline=None)
-    data = list(csv.reader(stream))
-    data = [item for sublist in data for item in sublist]
-    if len(data) > MAX_REQUEST_SIZE:
-        return f'Entry limit exceeded. Maximum entry allowed is {MAX_REQUEST_SIZE}', 400
-
-    try:
-        task = Task.create(entry_count = len(data), data_entries = ','.join(data))
-    except peewee.IntegrityError as e:
-        task = Task.get_or_none(task_id = sha1(bytes(','.join(data), 'utf-8')).hexdigest())
-    finally:
-        handle_qrcode_proc.delay(task.task_id, task.data_entries)
-
-    if user:
-        user.update(quota_left=user.quota_left-1).execute()
-
-    return json.dumps({'status': "OK", 'task_id': task.task_id}), 200
+    return common_api_handler(request, handle_qrcode_proc)
 
 
 @api.route('/csv-to-barcode', methods=['GET'])

@@ -29,6 +29,7 @@ class Task(Model):
     processed = IntegerField(default=0)
     data_entries = TextField()
     svg_output = BlobField(null=True)
+    pages = BooleanField(default=False)
 
     class Meta:
         database = db

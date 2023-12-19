@@ -14,6 +14,16 @@
           <div class="modal-body">
             <h2 class="modal-title">Upload .csv file</h2>
             
+            <label>
+                <input type="radio" id="singleQrcodeRadio" name="barcodeType">
+                Generate single barcode
+            </label>
+            <br/>
+            <label>
+                <input type="radio" id="qrcodeSheetRadio" name="barcodeType">
+                Generate barcodes in a sheet
+            </label>
+
             <button class="upload-area" type="button" onclick="mapToInput()">
               <span class="upload-area-icon">
               <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="340.531" height="419.116" viewBox="0 0 340.531 419.116">
@@ -22,7 +32,7 @@
                 </g>
               </svg>
               </span>
-              <span class="upload-area-title">Clicking here to upload. <br> (CSV, Max file size is 100KB)</span>
+              <span class="upload-area-title">Clicking here to upload. <br> (CSV, Max 1000 SKUs can be converted into qrcode)</span>
               <span class="upload-area-description">  </span>
             </button>
           </div>
@@ -64,49 +74,50 @@
         }
 
         function submitForm() {
-            var fileInput = document.getElementById('fileInput');
-            var file = fileInput.files[0];
+            var singleQrcodeRadio = document.getElementById('singleQrcodeRadio');
+            var qrcodeSheetRadio = document.getElementById('qrcodeSheetRadio');
+            
+            if (singleQrcodeRadio.checked || qrcodeSheetRadio.checked) {
+                var fileInput = document.getElementById('fileInput');
+                var file = fileInput.files[0];
 
-            if (file) {
-                // Check file type
-                var allowedTypes = ["text/csv"];
-                if (allowedTypes.indexOf(file.type) === -1) {
-                    alert('Only CSV files are allowed.');
-                    return;
-                }
-
-                // Check file size (in bytes)
-                var maxSize = 100 * 1024; // 100KB
-                if (file.size > maxSize) {
-                    alert('File size must be less than 100KB.');
-                    return;
-                }
-
-                var formData = new FormData();
-                formData.append('file', file);
-
-                fetch('/api/csv-to-qrcode', {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(async data => {
-                    // Handle the response from your API
-                    if (data.status == 200) {
-                        response = await data.json();
-                        console.log({response});
-                        task_id = response.task_id;
-                        resultPoller = setInterval(pollResult, 1000);
-                    } else {
-                        throw new Error("Request failed");
+                if (file) {
+                    // Check file type
+                    var allowedTypes = ["text/csv"];
+                    if (allowedTypes.indexOf(file.type) === -1) {
+                        alert('Only CSV files are allowed.');
+                        return;
                     }
-                })
-                .catch(error => {
-                    // Handle errors
-                    console.error('Error:', error);
-                    alert(error.message);
-                });
+
+                    var formData = new FormData();
+                    formData.append('file', file);
+                    formData.append('page', qrcodeSheetRadio.checked);
+
+                    fetch('/api/csv-to-qrcode', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(async data => {
+                        // Handle the response from your API
+                        if (data.status == 200) {
+                            response = await data.json();
+                            console.log({response});
+                            task_id = response.task_id;
+                            resultPoller = setInterval(pollResult, 1000);
+                        } else {
+                            throw new Error("Request failed");
+                        }
+                    })
+                    .catch(error => {
+                        // Handle errors
+                        console.error('Error:', error);
+                        alert(error.message);
+                    });
+                } else {
+                    alert('Please choose a file before submitting.');
+                }
             } else {
-                alert('Please choose a file before submitting.');
+                alert('Please select at least one option.');
             }
         }
 
