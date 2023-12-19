@@ -24,7 +24,7 @@
             justify-content: space-around;
         }
 
-        #skuForm, #generatedSKUs {
+        #skuForm, #rightContainer {
             width: 45%;
         }
 
@@ -41,14 +41,38 @@
             margin-bottom: 20px;
         }
 
-        #generatedSKUs {
+        #rightContainer {
             white-space: pre-wrap;
+        }
+
+        input {
+            padding: 8px 12px;
+            margin-top: 0px;
+            margin-bottom: 8px;
+        }
+
+        select {
+            padding: 4px 12px;
+        }
+
+        label {
+            margin-top: 8px;
+            margin-bottom: 4px;
+        }
+
+        button {
+            padding: 12px 24px;
+            box-sizing: border-box;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: large;
         }
     </style>
 </head>
 <body>
-
-    <h1>SKU Generator</h1>
 
     <div id="container">
         <form id="skuForm">
@@ -64,18 +88,21 @@
             <label for="attribute3">Attribute 3:</label>
             <input type="text" id="attribute3" placeholder="Enter Attribute 3" required>
 
-            <label for="separator">Separator:</label>
-            <select id="separator">
-                <option value="/">/</option>
-                <option value=":">:</option>
-                <option value="-">-</option>
-            </select>
+            <label for="separator">Separator:
+                <select id="separator">
+                    <option value="/">/</option>
+                    <option value=":">:</option>
+                    <option value="-">-</option>
+                </select>
+            </label>
 
             <button type="button" onclick="generateSKU()">Generate</button>
-            <button id="downloadBtn" type="button" onclick="downloadAsCsv()" style="display:none">Download</button>
         </form>
 
-        <div id="generatedSKUs"></div>
+        <div id="rightContainer">
+            <button id="downloadBtn" type="button" onclick="downloadAsCsv()" style="display:none">Download SKUs in CSV file</button>
+            <div id="generatedSKUs"></div>
+        </div>
     </div>
 
     <script>
