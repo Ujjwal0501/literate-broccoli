@@ -32,6 +32,5 @@ function generate_skus(start, count, prefix) {
 
     // Generate the list [start, end)
     const result = Array.from({ length: count }, (_, id) => convertNumberToBase36(start + id));
-    console.table(result);
     return result.join('\n');
 }
