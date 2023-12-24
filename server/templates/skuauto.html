@@ -4,42 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SKU Generator</title>
-    <style>
-        h1 {
-            text-align: center;
-        }
-
-        #skuForm {
-            max-width: 400px;
-            margin: 0 auto;
-        }
-
-        div {
-            margin-bottom: 15px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 5px;
-        }
-
-        input {
-            width: 100%;
-            padding: 8px;
-            box-sizing: border-box;
-        }
-
-        button {
-            width: 100%;
-            padding: 10px;
-            box-sizing: border-box;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-    </style>
+    <link rel="stylesheet" href="/static/css/skuauto.css">
+    <script src="/static/js/gencsv.js"></script>
 </head>
 <body>
 
@@ -66,22 +32,35 @@
 
     <script>
         function generateSKUs() {
-            var brandPrefix = document.getElementById('brandPrefix').value;
-            var startNumber = document.getElementById('startNumber').value;
-            var skuCount = document.getElementById('skuCount').value;
+            const form = document.getElementById('skuForm');
+            // Check if the form is valid
+            if (form.checkValidity()) {
+                // Form is not valid, display validation messages
+                form.reportValidity();
+                return;
+            }
 
-            // Convert the data to CSV format
-            var csvContent = 'data:text/csv;charset=utf-8,';
+            try {
+                var brandPrefix = document.getElementById('brandPrefix').value;
+                var startNumber = parseInt(document.getElementById('startNumber').value);
+                var skuCount = parseInt(document.getElementById('skuCount').value);
 
-            // Create a Blob and initiate download
-            var encodedUri = encodeURI(csvContent);
-            var link = document.createElement('a');
-            link.href = encodedUri;
-            link.download = 'generated_skus.csv';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            delete link;
+                // Convert the data to CSV format
+                var csvContent = 'data:text/csv;charset=utf-8,';
+
+                // Create a Blob and initiate download
+                var encodedUri = encodeURI(`${csvContent}${generate_skus(startNumber, skuCount, brandPrefix)}`);
+                var link = document.createElement('a');
+                link.href = encodedUri;
+                link.download = 'generated_skus.csv';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                delete link;
+            } catch (err) {
+                console.error({err});
+                alert(err.message)
+            }
         }
     </script>
 

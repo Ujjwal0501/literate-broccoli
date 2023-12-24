@@ -35,15 +35,14 @@ if __name__ == "__main__":
     end = start + count
     PREFIX = sys.argv[3]
 
-    # print the list [start, end)
-    product_id_list = [str(id) + "-" + convert_number_to_base36(id) for id in range(start, end)]
-    tracker_list = [convert_number_to_base36(id) for id in range(start, end)]
+    validate(start, count)
 
+    # generate the list [start, end)
     # write for the tracker sheet entry
     validate(start, count)
     with open('tracker.csv', 'w') as new_file:
         write=csv.writer(new_file, delimiter='\n')
-        write.writerow(tracker_list)
+        [write.writerow([convert_number_to_base36(id)]) for id in range(start, end)]
 
 
 
