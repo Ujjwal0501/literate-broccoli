@@ -34,7 +34,7 @@
         function generateSKUs() {
             const form = document.getElementById('skuForm');
             // Check if the form is valid
-            if (form.checkValidity()) {
+            if (!form.checkValidity()) {
                 // Form is not valid, display validation messages
                 form.reportValidity();
                 return;
