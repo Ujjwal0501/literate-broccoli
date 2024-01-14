@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>vCard Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        #container {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            width: 80%;
+        }
+        form {
+            max-width: 400px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #vcard-output, #qrcode {
+            margin-top: 20px;
+            white-space: pre-line;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <form id="vCardForm">
+            <label for="name">Name:</label>
+            <input type="text" id="name" required><br>
+            
+            <label for="phone">Phone Number:</label>
+            <input type="tel" id="phone" required><br>
+            
+            <label for="email">Email:</label>
+            <input type="email" id="email" required><br>
+            
+            <label for="company">Company:</label>
+            <input type="text" id="company" required><br>
+            
+            <label for="profile">Profile:</label>
+            <input type="text" id="profile" required><br>
+            
+            <button type="button" onclick="generateVCard()">Generate vCard</button>
+        </form>
+
+        <div id="vcard-output"></div>
+        <canvas id="qrcode"></canvas>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+    <script>
+        function generateVCard() {
+            var name = document.getElementById("name").value;
+            var phone = document.getElementById("phone").value;
+            var email = document.getElementById("email").value;
+            var company = document.getElementById("company").value;
+            var profile = document.getElementById("profile").value;
+
+            // Create vCard string
+            var vcard = `BEGIN:VCARD
+VERSION:3.0
+FN:${name}
+ORG:${company}
+TEL:${phone}
+EMAIL:${email}
+TITLE:${profile}
+END:VCARD`;
+
+            // Display vCard
+            document.getElementById("vcard-output").innerText = vcard;
+
+            // Generate QR Code
+            var qr = new QRious({
+                element: document.getElementById('qrcode'),
+                value: vcard
+            });
+        }
+    </script>
+</body>
+</html>

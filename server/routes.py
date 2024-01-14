@@ -18,7 +18,7 @@ root_key.update(quota_left=4294967296).execute()
 
 @server.route('/', methods=['GET'])
 def render_home():
-    route_list = [{"name": "Barcode Generator", "path": "create-barcode"}, {"name": "Qrcode Generator", "path": "create-qrcode"}, {"name": "SKU Auto Generator", "path": "sku-generator"}, {"name": "Customized SKU Generator", "path": "customized-sku-generator"}]
+    route_list = [{"name": "Barcode Generator", "path": "barcode"}, {"name": "Qrcode Generator", "path": "qrcode"}, {"name": "SKU Auto Generator", "path": "sku-generator"}, {"name": "Customized SKU Generator", "path": "customized-sku-generator"}, {"name": "VCard Generator", "path": "vcard-generator"}]
     return render_template('home.html', route_list=route_list), 200 
 
 
@@ -47,6 +47,11 @@ def sku_page():
 @server.route('/customized-sku-generator', methods=['GET'])
 def custom_sku_page():
     return render_template('skucustomized.html'), 200     
+
+
+@server.route('/vcard-generator', methods=['GET'])
+def vcard_page():
+    return render_template('vcardgenerator.html'), 200     
 
 
 if __name__ == '__main__':
